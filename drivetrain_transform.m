@@ -1,4 +1,4 @@
-function state = drivetrain_transform(laststate, forward_input, turn_input, dt)
+function state = drivetrain_transform(laststate, forward_input, turn_input, dt, noise)
     if(~isvector(laststate))
         error('Input state must be a vector.');
     end
@@ -8,27 +8,24 @@ function state = drivetrain_transform(laststate, forward_input, turn_input, dt)
     if(~(dt > 0))
         error('Delta time must be greater than 0');
     end
-    
     state = zeros(1,9);
+    rotation_matrix = [cos(-laststate(3)) -sin(-laststate(3)); sin(-laststate(3)) cos(-laststate(3))];
+    speedvec = rotation_matrix*[laststate(4);laststate(5)];
+    leftwheelspeed = (speedvec(1,:)-RobotConstants.radius*laststate(6))/(RobotConstants.wheel_radius);
+    rightwheelspeed = (speedvec(1,:)+RobotConstants.radius*laststate(6))/(RobotConstants.wheel_radius);
+    newleftwheelspeed = (leftwheelspeed+((torque_curve(leftwheelspeed, forward_input+turn_input)+noise*randn())/(RobotConstants.wheel_radius*RobotConstants.mass/2))*dt);
+    newrightwheelspeed = (rightwheelspeed+((torque_curve(rightwheelspeed, forward_input-turn_input)+noise*randn())/(RobotConstants.wheel_radius*RobotConstants.mass/2))*dt);
+    newleftspeed = newleftwheelspeed*(RobotConstants.wheel_radius);
+    newrightspeed = newrightwheelspeed*(RobotConstants.wheel_radius);
     
-    top_speed = 3;
-    top_accel = 20;
-    top_turn_rate = 3*pi;
-    top_turn_accel = 2*pi;
+    state(6) = (newleftspeed-newrightspeed)/(-2*RobotConstants.radius);
     
-    speed = sqrt(laststate(4)^2 + laststate(5)^2);
-    forward_accel = top_accel*forward_input*((top_speed-speed)/top_speed)
+    newspeedvec = [newleftspeed+RobotConstants.radius*state(6); 0];
+    state(3) = laststate(3) + state(6)*dt;
+    back_rotation_matrix = [cos(state(3)) -sin(state(3)); sin(state(3)) cos(state(3))];
+    state(4:5) = back_rotation_matrix*newspeedvec;
+    state(1:2) = laststate(1:2)+state(4:5)*dt;
+    state(7:8) = (state(4:5)-laststate(4:5))/dt;
+    state(9) = (state(6)-laststate(6))/dt;
     
-    turn_accel = top_turn_accel*turn_input*((top_turn_rate-abs(laststate(6)))/top_turn_rate);
-    
-    state(1) = laststate(1)+laststate(4)*dt+laststate(7)*dt^2;
-    state(2) = laststate(2)+laststate(5)*dt+laststate(8)*dt^2;
-    state(3) = laststate(3)+laststate(6)*dt+laststate(9)*dt^2;
-    state(4) = laststate(4)+laststate(7)*dt;
-    state(5) = laststate(5)+laststate(8)*dt;
-    state(6) = laststate(6)+laststate(9)*dt;
-    state(7) = forward_accel*cos(laststate(3));
-    state(8) = forward_accel*sin(laststate(3));
-    state(9) = turn_accel;
-    
-end
+end 
