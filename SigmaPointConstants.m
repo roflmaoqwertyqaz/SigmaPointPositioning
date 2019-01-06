@@ -18,15 +18,15 @@ classdef SigmaPointConstants
         est_rangefinder_bias_noise_std = 0.001;
         
         %true sensor standard deviations
-        accel_noise_std = 0.01;
-        gyro_noise_std = 0.02;
-        rangefinder_noise_std = 0.02;
+        accel_noise_std = 0.03;
+        gyro_noise_std = 0.05;
+        rangefinder_noise_std = 0.05;
         
         %estimated noise standard deviations
-        est_encoder_noise_std = 0.001;
-        est_accel_noise_std = 0.01;
-        est_gyro_noise_std = 0.02;
-        est_rangefinder_noise_std = 0.02;
+        est_encoder_noise_std = 0.01;
+        est_accel_noise_std = 0.03;
+        est_gyro_noise_std = 0.05;
+        est_rangefinder_noise_std = 0.05;
         
         %true biases
         imu_bias = [0, 0, 0];
