@@ -1,5 +1,5 @@
 function torque = torque_curve(wheel_vel, input)
     torque = max(-1,min(1,input))*RobotConstants.wheel_stall_torque*...
         basic_torque_curve(sign(input)*wheel_vel/RobotConstants.wheel_top_angspeed)-...
-        sign(wheel_vel)*RobotConstants.internal_wheel_friction_torque;
+        (max(-0.01, min(0.01, wheel_vel))/0.01)*RobotConstants.internal_wheel_friction_torque;
 end

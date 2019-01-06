@@ -7,5 +7,6 @@ classdef RobotConstants
         wheel_top_angspeed = 25.13;
         g = 9.81;
         internal_wheel_friction_torque = 1.5;
+        field_size = 2;
     end
 end
